@@ -1,0 +1,10 @@
+ORIGINAL_IFS=$IFS
+IFS=','
+
+for forward in $TCP_PORT_FORWARDS; do
+  IFS=':'
+  read LOCAL_PORT REMOTE_HOST REMOTE_PORT <<< "$forward"
+  IFS=$ORIGINAL_IFS
+  socat TCP-LISTEN:$LOCAL_PORT,fork TCP:$REMOTE_HOST:$REMOTE_PORT &
+done
+

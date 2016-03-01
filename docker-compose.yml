@@ -1,0 +1,6 @@
+portforwarder:
+  build: .
+  restart: always
+  environment:
+    - TCP_PORT_FORWARDS=8080:gooogle.com:80
+
