@@ -1,0 +1,27 @@
+#!/usr/bin/with-contenv bash
+
+echo "Setting up socat services"
+
+SOCAT_PREFIX=10-socat-tcp-forwarder-
+rm -rf /etc/services.d/$SOCAT_PREFIX*
+
+ORIGINAL_IFS=$IFS
+IFS=','
+
+for forward in $TCP_PORT_FORWARDS; do
+  IFS=':'
+  read LOCAL_PORT REMOTE_HOST REMOTE_PORT <<< "$forward"
+  IFS=$ORIGINAL_IFS
+
+  SOCAT_SVC_DIR=/etc/services.d/$SOCAT_PREFIX$LOCAL_PORT
+  mkdir -p $SOCAT_SVC_DIR
+
+  echo "#!/usr/bin/env sh" > $SOCAT_SVC_DIR/run
+  echo "socat TCP-LISTEN:$LOCAL_PORT,fork TCP:$REMOTE_HOST:$REMOTE_PORT" >> $SOCAT_SVC_DIR/run
+
+  echo "#!/usr/bin/execlineb -S0" > $SOCAT_SVC_DIR/finish
+  echo "s6-svscanctl -t /var/run/s6/services" >> $SOCAT_SVC_DIR/finish
+  chmod u+x $SOCAT_SVC_DIR/*
+done
+
+ls /etc/services.d

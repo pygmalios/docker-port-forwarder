@@ -1,10 +1,5 @@
-FROM alpine:latest
+FROM quay.io/justcontainers/base-alpine
 
-RUN apk add --update socat && rm -rf /var/cache/apk/*
+RUN apk add --update socat bash && rm -rf /var/cache/apk/*
 
-ENV TCP_PORT_FORWARD 8080:google.com:80
-
-ADD run.sh /
-
-CMD /run.sh
-
+COPY rootfs /
